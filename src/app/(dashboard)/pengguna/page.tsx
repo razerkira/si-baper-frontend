@@ -8,10 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 
 interface Role {
@@ -33,14 +42,12 @@ export default function PenggunaPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- STATE MODAL EDIT ---
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editFullName, setEditFullName] = useState("");
   const [editDepartment, setEditDepartment] = useState("");
   const [editRoleId, setEditRoleId] = useState("");
 
-  // --- STATE MODAL TAMBAH PENGGUNA ---
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addNIP, setAddNIP] = useState("");
   const [addFullName, setAddFullName] = useState("");
@@ -54,14 +61,13 @@ export default function PenggunaPage() {
     try {
       const [usersRes, rolesRes] = await Promise.all([
         api.get("/users/"),
-        api.get("/users/roles")
+        api.get("/users/roles"),
       ]);
       setUsers(usersRes.data.data || []);
-      
+
       const rolesData = rolesRes.data.data || [];
       setRoles(rolesData);
-      
-      // Set default role untuk form tambah (jika ada role)
+
       if (rolesData.length > 0) {
         setAddRoleId(rolesData[0].ID.toString());
       }
@@ -76,23 +82,21 @@ export default function PenggunaPage() {
     fetchData();
   }, []);
 
-  // --- FUNGSI TAMBAH PENGGUNA ---
   const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault(); // Mencegah reload halaman
+    e.preventDefault();
     try {
-      // Kita manfaatkan endpoint register yang sudah ada di backend
       await api.post("/auth/register", {
         nip: addNIP,
         full_name: addFullName,
         email: addEmail,
         department: addDepartment,
         password: addPassword,
-        role_id: parseInt(addRoleId)
+        role_id: parseInt(addRoleId),
       });
-      
+
       alert("Pengguna baru berhasil ditambahkan!");
       setIsAddOpen(false);
-      
+
       // Reset form
       setAddNIP("");
       setAddFullName("");
@@ -100,14 +104,15 @@ export default function PenggunaPage() {
       setAddDepartment("");
       setAddPassword("");
       setAddRoleId(roles[0]?.ID.toString() || "");
-      
-      fetchData(); // Refresh tabel
+
+      fetchData();
     } catch (error: any) {
-      alert("Gagal menambahkan: " + (error.response?.data?.error || "Error server"));
+      alert(
+        "Gagal menambahkan: " + (error.response?.data?.error || "Error server"),
+      );
     }
   };
 
-  // --- FUNGSI EDIT PENGGUNA ---
   const openEditModal = (user: User) => {
     setEditingUser(user);
     setEditFullName(user.FullName);
@@ -122,35 +127,53 @@ export default function PenggunaPage() {
       await api.put(`/users/${editingUser.ID}`, {
         full_name: editFullName,
         department: editDepartment,
-        role_id: parseInt(editRoleId)
+        role_id: parseInt(editRoleId),
       });
       alert("Data pengguna berhasil diperbarui!");
       setIsEditOpen(false);
       fetchData();
     } catch (error: any) {
-      alert("Gagal memperbarui: " + (error.response?.data?.error || "Error server"));
+      alert(
+        "Gagal memperbarui: " + (error.response?.data?.error || "Error server"),
+      );
     }
   };
 
-  // --- FUNGSI HAPUS PENGGUNA ---
   const handleDeleteUser = async (id: number, name: string) => {
-    const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus akun ${name}?`);
+    const confirmDelete = window.confirm(
+      `Apakah Anda yakin ingin menghapus akun ${name}?`,
+    );
     if (confirmDelete) {
       try {
         await api.delete(`/users/${id}`);
         alert("Pengguna berhasil dihapus!");
         fetchData();
       } catch (error: any) {
-        alert("Gagal menghapus: " + (error.response?.data?.error || "Error server"));
+        alert(
+          "Gagal menghapus: " + (error.response?.data?.error || "Error server"),
+        );
       }
     }
   };
 
   const getRoleBadge = (roleName: string) => {
     switch (roleName) {
-      case "Admin Gudang": return <Badge className="bg-blue-100 text-blue-700">Admin Gudang</Badge>;
-      case "Verifikator": return <Badge className="bg-purple-100 text-purple-700">Verifikator</Badge>;
-      default: return <Badge className="bg-slate-100 text-slate-700">Pegawai</Badge>;
+      case "Admin":
+        return <Badge className="bg-red-100 text-red-700">Admin</Badge>;
+      case "Verifikator":
+        return (
+          <Badge className="bg-purple-100 text-purple-700">Verifikator</Badge>
+        );
+      case "Eksekutif":
+        return <Badge className="bg-amber-100 text-amber-700">Eksekutif</Badge>;
+      case "Pegawai":
+        return <Badge className="bg-blue-100 text-blue-700">Pegawai</Badge>;
+      default:
+        return (
+          <Badge className="bg-slate-100 text-slate-700">
+            {roleName || "Tidak Diketahui"}
+          </Badge>
+        );
     }
   };
 
@@ -158,10 +181,14 @@ export default function PenggunaPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">Manajemen Pengguna</h1>
-          <p className="text-slate-500 mt-1">Kelola data pegawai, hak akses, dan biro/bagian.</p>
+          <h1 className="text-3xl font-bold text-slate-800">
+            Manajemen Pengguna
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Kelola data pegawai, hak akses, dan biro/bagian.
+          </p>
         </div>
-        <Button 
+        <Button
           className="bg-blue-700 hover:bg-blue-800 text-white shadow-sm"
           onClick={() => setIsAddOpen(true)}
         >
@@ -171,7 +198,9 @@ export default function PenggunaPage() {
 
       <div className="bg-white rounded-lg shadow-sm border p-4">
         {isLoading ? (
-          <div className="text-center py-8 text-slate-500">Memuat data pengguna...</div>
+          <div className="text-center py-8 text-slate-500">
+            Memuat data pengguna...
+          </div>
         ) : users.length === 0 ? (
           <div className="text-center py-12 text-slate-500 flex flex-col items-center">
             <UsersIcon className="h-12 w-12 mb-3 text-slate-300" />
@@ -193,25 +222,35 @@ export default function PenggunaPage() {
                 {users.map((user) => (
                   <TableRow key={user.ID}>
                     <TableCell>
-                      <div className="font-semibold text-slate-800">{user.FullName}</div>
+                      <div className="font-semibold text-slate-800">
+                        {user.FullName}
+                      </div>
                       <div className="text-xs text-slate-500">{user.Email}</div>
                     </TableCell>
-                    <TableCell className="text-slate-600 font-medium">{user.NIP}</TableCell>
-                    <TableCell className="text-sm text-slate-600">{user.Department}</TableCell>
-                    <TableCell>{getRoleBadge(user.Role?.RoleName || "Tidak Diketahui")}</TableCell>
+                    <TableCell className="text-slate-600 font-medium">
+                      {user.NIP}
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-600">
+                      {user.Department}
+                    </TableCell>
+                    <TableCell>{getRoleBadge(user.Role?.RoleName)}</TableCell>
                     <TableCell className="text-center">
                       <div className="flex justify-center gap-2">
-                        <Button 
-                          variant="outline" size="icon" 
+                        <Button
+                          variant="outline"
+                          size="icon"
                           className="h-8 w-8 text-blue-600 hover:bg-blue-50"
                           onClick={() => openEditModal(user)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="outline" size="icon" 
+                        <Button
+                          variant="outline"
+                          size="icon"
                           className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
-                          onClick={() => handleDeleteUser(user.ID, user.FullName)}
+                          onClick={() =>
+                            handleDeleteUser(user.ID, user.FullName)
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -225,7 +264,6 @@ export default function PenggunaPage() {
         )}
       </div>
 
-      {/* --- MODAL TAMBAH PENGGUNA --- */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -236,46 +274,85 @@ export default function PenggunaPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>NIP</Label>
-                  <Input required value={addNIP} onChange={(e) => setAddNIP(e.target.value)} placeholder="Contoh: 1990..." />
+                  <Input
+                    required
+                    value={addNIP}
+                    onChange={(e) => setAddNIP(e.target.value)}
+                    placeholder="Contoh: 1990..."
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Hak Akses</Label>
-                  <select 
+                  <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    value={addRoleId} onChange={(e) => setAddRoleId(e.target.value)} required
+                    value={addRoleId}
+                    onChange={(e) => setAddRoleId(e.target.value)}
+                    required
                   >
                     {roles.map((role) => (
-                      <option key={role.ID} value={role.ID}>{role.RoleName}</option>
+                      <option key={role.ID} value={role.ID}>
+                        {role.RoleName}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Nama Lengkap</Label>
-                <Input required value={addFullName} onChange={(e) => setAddFullName(e.target.value)} placeholder="Nama Pegawai" />
+                <Input
+                  required
+                  value={addFullName}
+                  onChange={(e) => setAddFullName(e.target.value)}
+                  placeholder="Nama Pegawai"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Email</Label>
-                <Input type="email" required value={addEmail} onChange={(e) => setAddEmail(e.target.value)} placeholder="nama@kemenham.go.id" />
+                <Input
+                  type="email"
+                  required
+                  value={addEmail}
+                  onChange={(e) => setAddEmail(e.target.value)}
+                  placeholder="nama@kemenham.go.id"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Bagian / Biro / Jabatan</Label>
-                <Input required value={addDepartment} onChange={(e) => setAddDepartment(e.target.value)} placeholder="Contoh: Bagian Umum" />
+                <Input
+                  required
+                  value={addDepartment}
+                  onChange={(e) => setAddDepartment(e.target.value)}
+                  placeholder="Contoh: Bagian Umum"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Kata Sandi (Default)</Label>
-                <Input type="password" required minLength={6} value={addPassword} onChange={(e) => setAddPassword(e.target.value)} placeholder="Minimal 6 karakter" />
+                <Input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={addPassword}
+                  onChange={(e) => setAddPassword(e.target.value)}
+                  placeholder="Minimal 6 karakter"
+                />
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Batal</Button>
-              <Button type="submit" className="bg-blue-700 hover:bg-blue-800">Simpan Pengguna</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddOpen(false)}
+              >
+                Batal
+              </Button>
+              <Button type="submit" className="bg-blue-700 hover:bg-blue-800">
+                Simpan Pengguna
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* --- MODAL EDIT PENGGUNA --- */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent>
           <DialogHeader>
@@ -284,28 +361,43 @@ export default function PenggunaPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Nama Lengkap</Label>
-              <Input value={editFullName} onChange={(e) => setEditFullName(e.target.value)} />
+              <Input
+                value={editFullName}
+                onChange={(e) => setEditFullName(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Bagian / Jabatan</Label>
-              <Input value={editDepartment} onChange={(e) => setEditDepartment(e.target.value)} />
+              <Input
+                value={editDepartment}
+                onChange={(e) => setEditDepartment(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Hak Akses (Role)</Label>
-              <select 
+              <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 value={editRoleId}
                 onChange={(e) => setEditRoleId(e.target.value)}
               >
                 {roles.map((role) => (
-                  <option key={role.ID} value={role.ID}>{role.RoleName}</option>
+                  <option key={role.ID} value={role.ID}>
+                    {role.RoleName}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditOpen(false)}>Batal</Button>
-            <Button className="bg-blue-700 hover:bg-blue-800" onClick={handleUpdateUser}>Simpan Perubahan</Button>
+            <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              className="bg-blue-700 hover:bg-blue-800"
+              onClick={handleUpdateUser}
+            >
+              Simpan Perubahan
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
