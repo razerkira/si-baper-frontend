@@ -160,10 +160,6 @@ export default function PenggunaPage() {
     switch (roleName) {
       case "Admin":
         return <Badge className="bg-red-100 text-red-700">Admin</Badge>;
-      case "Verifikator":
-        return (
-          <Badge className="bg-purple-100 text-purple-700">Verifikator</Badge>
-        );
       case "Eksekutif":
         return <Badge className="bg-amber-100 text-amber-700">Eksekutif</Badge>;
       case "Pegawai":
