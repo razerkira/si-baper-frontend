@@ -60,9 +60,10 @@ export default function KatalogPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
+      // HAPUS GARIS MIRING DI SINI
       const [itemsRes, categoriesRes] = await Promise.all([
-        api.get("/items/"),
-        api.get("/categories/")
+        api.get("/items"),
+        api.get("/categories")
       ]);
       setItems(itemsRes.data.data || []);
       
@@ -109,7 +110,8 @@ export default function KatalogPage() {
     setIsSubmitting(true);
 
     try {
-      await api.post("/items/", {
+      // HAPUS GARIS MIRING DI SINI
+      await api.post("/items", {
         item_code: itemCode,
         name: name,
         description: description,
@@ -141,12 +143,14 @@ export default function KatalogPage() {
     e.preventDefault();
     setIsSubmittingCategory(true);
     try {
-      const res = await api.post("/categories/", { name: newCategoryName });
+      // HAPUS GARIS MIRING DI SINI
+      const res = await api.post("/categories", { name: newCategoryName });
       alert("Kategori berhasil ditambahkan!");
       setIsAddCategoryOpen(false);
       setNewCategoryName("");
       
-      const categoriesRes = await api.get("/categories/");
+      // HAPUS GARIS MIRING DI SINI
+      const categoriesRes = await api.get("/categories");
       const newCatData = categoriesRes.data.data || [];
       setCategories(newCatData);
       
