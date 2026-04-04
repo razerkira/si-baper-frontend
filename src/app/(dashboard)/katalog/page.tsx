@@ -53,6 +53,8 @@ export default function KatalogPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
+  // Dibiarkan kosong karena fitur Next.js Rewrites (next.config.js) 
+  // akan otomatis menangani rute yang berawalan /uploads/
   const baseURL = "";
 
   const fetchData = async () => {
