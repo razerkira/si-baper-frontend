@@ -53,7 +53,7 @@ export default function KatalogPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
-  const baseURL = api.defaults.baseURL?.replace('/api', '') || '';
+  const baseURL = "";
 
   const fetchData = async () => {
     setIsLoading(true);
