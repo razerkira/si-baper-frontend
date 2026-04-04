@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 // Buat instance axios dengan baseURL backend Go kita
 const api = axios.create({
-  baseURL: 'https://sibaperapi1-k9m35uhb.b4a.run/api',
+  baseURL: 'http://187.77.113.89:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
