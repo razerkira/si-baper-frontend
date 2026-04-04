@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import * as XLSX from "xlsx"; // <-- Import library Excel
-import { Plus, PackageSearch, ExternalLink, FileSpreadsheet } from "lucide-react"; // <-- Tambah ikon FileSpreadsheet
+import * as XLSX from "xlsx";
+import { Plus, PackageSearch, ExternalLink, FileSpreadsheet } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -39,7 +39,6 @@ export default function KatalogPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // --- STATE MODAL TAMBAH BARANG ---
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [itemCode, setItemCode] = useState("");
   const [name, setName] = useState("");
@@ -50,10 +49,11 @@ export default function KatalogPage() {
   const [unit, setUnit] = useState("Pcs");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- STATE MODAL TAMBAH KATEGORI ---
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
+
+  const baseURL = api.defaults.baseURL?.replace('/api', '') || '';
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -72,7 +72,7 @@ export default function KatalogPage() {
       }
       
     } catch (err: any) {
-      setError("Gagal mengambil data katalog. Pastikan server backend menyala.");
+      setError("Gagal mengambil data katalog. Pastikan server VPS menyala.");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -83,9 +83,7 @@ export default function KatalogPage() {
     fetchData();
   }, []);
 
-  // --- FUNGSI EXPORT EXCEL ---
   const handleExportExcel = () => {
-    // 1. Format ulang data agar rapi saat masuk ke Excel
     const exportData = items.map((item, index) => ({
       "No": index + 1,
       "Kode Barang": item.ItemCode,
@@ -95,17 +93,12 @@ export default function KatalogPage() {
       "Batas Minimum": item.MinimumStock,
       "Satuan": item.Unit,
       "Deskripsi": item.Description,
-      "Link QR Code": item.QRCodeURL || "Tidak ada"
+      "Link QR Code": item.QRCodeURL ? `${baseURL}${item.QRCodeURL}` : "Tidak ada"
     }));
 
-    // 2. Buat Worksheet (lembar kerja) dari data JSON tadi
     const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-    // 3. Buat Workbook (file Excel) dan masukkan lembar kerjanya
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Katalog");
-
-    // 4. Unduh file otomatis ke perangkat pengguna
     XLSX.writeFile(workbook, `Katalog_Barang_SIBAPER_${new Date().getTime()}.xlsx`);
   };
 
@@ -173,7 +166,6 @@ export default function KatalogPage() {
           <p className="text-slate-500 mt-1">Kelola data master barang persediaan dan QR Code.</p>
         </div>
         
-        {/* --- TOMBOL EXPORT EXCEL & TAMBAH BARANG --- */}
         <div className="flex gap-3">
           <Button 
             variant="outline"
@@ -193,7 +185,6 @@ export default function KatalogPage() {
         </div>
       </div>
 
-      {/* Area Konten Utama */}
       <div className="bg-white rounded-lg shadow-sm border p-4">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-500">
@@ -220,57 +211,60 @@ export default function KatalogPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.ID} className="hover:bg-slate-50">
-                    <TableCell>
-                      {item.QRCodeURL ? (
-                        <a 
-                          href={item.QRCodeURL} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:text-blue-800 text-xs"
-                        >
-                          <img 
-                            src={item.QRCodeURL} 
-                            alt={`QR ${item.ItemCode}`} 
-                            className="w-10 h-10 border rounded mr-2 object-cover"
-                          />
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      ) : (
-                        <span className="text-xs text-slate-400">Tidak ada QR</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium text-slate-700">{item.ItemCode}</TableCell>
-                    <TableCell>
-                      <div className="font-semibold">{item.Name}</div>
-                      <div className="text-xs text-slate-500 line-clamp-1" title={item.Description}>
-                        {item.Description}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-slate-100 text-slate-600">
-                        {item.Category?.Name || "Tanpa Kategori"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className={`font-bold ${item.CurrentStock <= item.MinimumStock ? 'text-red-600' : 'text-slate-800'}`}>
-                        {item.CurrentStock}
-                      </span>
-                      {item.CurrentStock <= item.MinimumStock && (
-                        <div className="text-[10px] text-red-500 font-medium mt-1">Stok Menipis</div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-slate-600">{item.Unit}</TableCell>
-                  </TableRow>
-                ))}
+                {items.map((item) => {
+                  const fullQRUrl = item.QRCodeURL ? `${baseURL}${item.QRCodeURL}` : '';
+
+                  return (
+                    <TableRow key={item.ID} className="hover:bg-slate-50">
+                      <TableCell>
+                        {fullQRUrl ? (
+                          <a 
+                            href={fullQRUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:text-blue-800 text-xs"
+                          >
+                            <img 
+                              src={fullQRUrl} 
+                              alt={`QR ${item.ItemCode}`} 
+                              className="w-10 h-10 border rounded mr-2 object-cover"
+                            />
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          <span className="text-xs text-slate-400">Tidak ada QR</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium text-slate-700">{item.ItemCode}</TableCell>
+                      <TableCell>
+                        <div className="font-semibold">{item.Name}</div>
+                        <div className="text-xs text-slate-500 line-clamp-1" title={item.Description}>
+                          {item.Description}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-slate-100 text-slate-600">
+                          {item.Category?.Name || "Tanpa Kategori"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className={`font-bold ${item.CurrentStock <= item.MinimumStock ? 'text-red-600' : 'text-slate-800'}`}>
+                          {item.CurrentStock}
+                        </span>
+                        {item.CurrentStock <= item.MinimumStock && (
+                          <div className="text-[10px] text-red-500 font-medium mt-1">Stok Menipis</div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-slate-600">{item.Unit}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
         )}
       </div>
 
-      {/* --- MODAL TAMBAH BARANG --- */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
@@ -334,7 +328,7 @@ export default function KatalogPage() {
               </div>
               
               <p className="text-xs text-blue-600 italic">
-                *Sistem akan otomatis menghasilkan dan menyimpan QR Code ke Google Cloud Storage setelah barang disimpan.
+                *Sistem akan otomatis menghasilkan dan menyimpan QR Code secara lokal di Server VPS.
               </p>
             </div>
             
@@ -348,7 +342,6 @@ export default function KatalogPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- MODAL TAMBAH KATEGORI KECIL --- */}
       <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
