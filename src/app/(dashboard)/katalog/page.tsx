@@ -1,9 +1,10 @@
+// src/app/(dashboard)/katalog/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import * as XLSX from "xlsx";
-import { Plus, PackageSearch, ExternalLink, FileSpreadsheet } from "lucide-react"; 
+import { Plus, PackageSearch, ExternalLink, FileSpreadsheet, Edit, Trash2 } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
 
 interface Category {
@@ -39,7 +40,7 @@ export default function KatalogPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  // States Form
   const [itemCode, setItemCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -49,18 +50,28 @@ export default function KatalogPage() {
   const [unit, setUnit] = useState("Pcs");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // States Modal Tambah Barang
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  // States Modal Edit Barang
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editItemId, setEditItemId] = useState<number | null>(null);
+
+  // States Modal Hapus Barang
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Item | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // States Modal Kategori
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
-  // Dibiarkan kosong karena fitur Next.js Rewrites (next.config.js) 
-  // akan otomatis menangani rute yang berawalan /uploads/
   const baseURL = "";
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // HAPUS GARIS MIRING DI SINI
       const [itemsRes, categoriesRes] = await Promise.all([
         api.get("/items"),
         api.get("/categories")
@@ -86,6 +97,40 @@ export default function KatalogPage() {
     fetchData();
   }, []);
 
+  const resetForm = () => {
+    setItemCode("");
+    setName("");
+    setDescription("");
+    setMinStock(5);
+    setCurrentStock(0);
+    setUnit("Pcs");
+    if (categories.length > 0) {
+      setCategoryId(categories[0].ID.toString());
+    }
+  };
+
+  const handleOpenAddModal = () => {
+    resetForm();
+    setIsAddOpen(true);
+  };
+
+  const handleOpenEditModal = (item: Item) => {
+    setEditItemId(item.ID);
+    setItemCode(item.ItemCode);
+    setName(item.Name);
+    setDescription(item.Description || "");
+    setCategoryId(item.Category?.ID.toString() || (categories[0]?.ID.toString() || ""));
+    setMinStock(item.MinimumStock);
+    setCurrentStock(item.CurrentStock);
+    setUnit(item.Unit);
+    setIsEditOpen(true);
+  };
+
+  const handleOpenDeleteModal = (item: Item) => {
+    setItemToDelete(item);
+    setIsDeleteOpen(true);
+  };
+
   const handleExportExcel = () => {
     const exportData = items.map((item, index) => ({
       "No": index + 1,
@@ -110,7 +155,6 @@ export default function KatalogPage() {
     setIsSubmitting(true);
 
     try {
-      // HAPUS GARIS MIRING DI SINI
       await api.post("/items", {
         item_code: itemCode,
         name: name,
@@ -123,14 +167,7 @@ export default function KatalogPage() {
 
       alert("Barang berhasil ditambahkan ke Katalog!");
       setIsAddOpen(false);
-      
-      setItemCode("");
-      setName("");
-      setDescription("");
-      setMinStock(5);
-      setCurrentStock(0);
-      setUnit("Pcs");
-      
+      resetForm();
       fetchData();
     } catch (error: any) {
       alert("Gagal menambahkan barang: " + (error.response?.data?.error || "Kesalahan server"));
@@ -139,17 +176,59 @@ export default function KatalogPage() {
     }
   };
 
+  const handleEditItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editItemId) return;
+    setIsSubmitting(true);
+
+    try {
+      await api.put(`/items/${editItemId}`, {
+        item_code: itemCode,
+        name: name,
+        description: description,
+        category_id: parseInt(categoryId),
+        minimum_stock: minStock,
+        current_stock: currentStock,
+        unit: unit
+      });
+
+      alert("Data barang berhasil diperbarui!");
+      setIsEditOpen(false);
+      resetForm();
+      fetchData();
+    } catch (error: any) {
+      alert("Gagal memperbarui barang: " + (error.response?.data?.error || "Kesalahan server"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteItem = async () => {
+    if (!itemToDelete) return;
+    setIsDeleting(true);
+
+    try {
+      await api.delete(`/items/${itemToDelete.ID}`);
+      alert("Barang berhasil dihapus!");
+      setIsDeleteOpen(false);
+      setItemToDelete(null);
+      fetchData();
+    } catch (error: any) {
+      alert("Gagal menghapus barang: " + (error.response?.data?.error || "Kesalahan server"));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingCategory(true);
     try {
-      // HAPUS GARIS MIRING DI SINI
       const res = await api.post("/categories", { name: newCategoryName });
       alert("Kategori berhasil ditambahkan!");
       setIsAddCategoryOpen(false);
       setNewCategoryName("");
       
-      // HAPUS GARIS MIRING DI SINI
       const categoriesRes = await api.get("/categories");
       const newCatData = categoriesRes.data.data || [];
       setCategories(newCatData);
@@ -184,7 +263,7 @@ export default function KatalogPage() {
 
           <Button 
             className="bg-blue-700 hover:bg-blue-800 text-white shadow-sm"
-            onClick={() => setIsAddOpen(true)}
+            onClick={handleOpenAddModal}
           >
             <Plus className="mr-2 h-4 w-4" /> Tambah Barang
           </Button>
@@ -214,6 +293,8 @@ export default function KatalogPage() {
                   <TableHead>Kategori</TableHead>
                   <TableHead className="text-right">Stok Saat Ini</TableHead>
                   <TableHead>Satuan</TableHead>
+                  {/* Judul kolom aksinya disesuaikan agar sama */}
+                  <TableHead className="text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -262,6 +343,31 @@ export default function KatalogPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-slate-600">{item.Unit}</TableCell>
+                      {/* Sel Aksi dimodifikasi di sini agar serasi dengan gambar */}
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            // Ukuran kompak h-8 w-8, warna biru, dan border biru tipis saat normal
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200"
+                            onClick={() => handleOpenEditModal(item)}
+                            title="Edit Barang"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            // Ukuran kompak h-8 w-8, warna merah, dan border merah tipis saat normal
+                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
+                            onClick={() => handleOpenDeleteModal(item)}
+                            title="Hapus Barang"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -271,10 +377,14 @@ export default function KatalogPage() {
         )}
       </div>
 
+      {/* DIALOG TAMBAH BARANG */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Tambah Barang Baru</DialogTitle>
+            <DialogDescription>
+              Silakan isi formulir di bawah ini untuk menambahkan barang persediaan baru.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAddItem}>
             <div className="space-y-4 py-4">
@@ -348,10 +458,111 @@ export default function KatalogPage() {
         </DialogContent>
       </Dialog>
 
+      {/* DIALOG EDIT BARANG */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Edit Barang</DialogTitle>
+            <DialogDescription>
+              Ubah rincian data barang di bawah ini.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditItem}>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Kode Barang</Label>
+                  <Input required value={itemCode} onChange={(e) => setItemCode(e.target.value)} placeholder="Contoh: ATK-001" />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Kategori</Label>
+                  <div className="flex gap-2">
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat.ID} value={cat.ID}>{cat.Name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Nama Barang</Label>
+                <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Contoh: Pulpen Faster Hitam" />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Deskripsi / Spesifikasi</Label>
+                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tinta hitam, ketebalan 0.5mm" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Stok Saat Ini</Label>
+                  <Input type="number" required min={0} value={currentStock} onChange={(e) => setCurrentStock(parseInt(e.target.value) || 0)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Batas Minimum</Label>
+                  <Input type="number" required min={0} value={minStock} onChange={(e) => setMinStock(parseInt(e.target.value) || 0)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Satuan</Label>
+                  <Input required value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Rim, Kotak, Pcs..." />
+                </div>
+              </div>
+              
+              <p className="text-xs text-amber-600 italic">
+                *Jika Kode Barang diubah, sistem akan otomatis membuatkan file QR Code yang baru.
+              </p>
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} disabled={isSubmitting}>Batal</Button>
+              <Button type="submit" className="bg-blue-700 hover:bg-blue-800" disabled={isSubmitting}>
+                {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG HAPUS BARANG */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Hapus Barang</DialogTitle>
+            <DialogDescription>
+              Apakah Anda yakin ingin menghapus barang <b>{itemToDelete?.Name}</b> ({itemToDelete?.ItemCode})? Data beserta gambar QR Code-nya akan dihapus permanen.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button type="button" variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isDeleting}>
+              Batal
+            </Button>
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={handleDeleteItem} 
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Menghapus..." : "Ya, Hapus Barang"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG TAMBAH KATEGORI */}
       <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Tambah Kategori Baru</DialogTitle>
+            <DialogDescription>
+              Masukkan nama kategori persediaan yang baru.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAddCategory}>
             <div className="space-y-4 py-4">

@@ -16,7 +16,6 @@ import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 
-// Definisi Tipe Data
 interface RequestDetail {
   ID: number;
   Item: {
@@ -32,7 +31,7 @@ interface PendingRequest {
   RequestNumber: string;
   Notes: string;
   CreatedAt?: string;
-  created_at?: string; // Fallback jika backend menggunakan snake_case
+  created_at?: string; 
   User: {
     FullName: string;
     Department: string;
@@ -44,14 +43,11 @@ export default function PersetujuanPage() {
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // State untuk Modal Persetujuan
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<PendingRequest | null>(null);
   const [actionType, setActionType] = useState<"Approved" | "Rejected" | null>(null);
   const [comments, setComments] = useState("");
   
-  // Menyimpan jumlah barang yang disetujui untuk setiap item
-  // Format: { [request_detail_id]: quantity_approved }
   const [approvedQuantities, setApprovedQuantities] = useState<Record<number, number>>({});
 
   const fetchPendingRequests = async () => {
@@ -70,13 +66,11 @@ export default function PersetujuanPage() {
     fetchPendingRequests();
   }, []);
 
-  // Membuka modal dan menyiapkan data bawaan
   const openApprovalModal = (request: PendingRequest, type: "Approved" | "Rejected") => {
     setSelectedRequest(request);
     setActionType(type);
     setComments("");
     
-    // Jika disetujui, set nilai awal quantity_approved sama dengan quantity_requested
     if (type === "Approved") {
       const initialQuantities: Record<number, number> = {};
       request.RequestDetails.forEach(detail => {
@@ -100,7 +94,6 @@ export default function PersetujuanPage() {
   const submitProcess = async () => {
     if (!selectedRequest || !actionType) return;
 
-    // Siapkan array items jika statusnya Approved
     const itemsPayload = actionType === "Approved" 
       ? Object.entries(approvedQuantities).map(([id, qty]) => ({
           request_detail_id: parseInt(id),
@@ -118,13 +111,12 @@ export default function PersetujuanPage() {
 
       alert(`Permintaan berhasil di-${actionType === "Approved" ? "Setujui" : "Tolak"}!`);
       setIsDialogOpen(false);
-      fetchPendingRequests(); // Refresh tabel setelah berhasil
+      fetchPendingRequests(); 
     } catch (error: any) {
       alert("Gagal memproses persetujuan: " + (error.response?.data?.error || "Kesalahan server"));
     }
   };
 
-  // Fungsi pembantu untuk format tanggal secara aman
   const formatSafeDate = (req: PendingRequest) => {
     const dateValue = req.CreatedAt || req.created_at || (req as any).UpdatedAt || (req as any).updated_at;
     
@@ -132,10 +124,8 @@ export default function PersetujuanPage() {
     
     const dateObj = new Date(dateValue);
     
-    // Mengecek apakah parsing tanggal valid atau menghasilkan Invalid Date (NaN)
     if (isNaN(dateObj.getTime())) return "-";
     
-    // Menggunakan format yang sama dengan halaman permintaan agar seragam
     return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
@@ -171,7 +161,6 @@ export default function PersetujuanPage() {
                     <TableCell>
                       <div className="font-medium text-slate-700">{req.RequestNumber}</div>
                       <div className="text-xs text-slate-500">
-                        {/* Menggunakan formatSafeDate alih-alih Date langsung */}
                         {formatSafeDate(req)}
                       </div>
                     </TableCell>
@@ -219,7 +208,6 @@ export default function PersetujuanPage() {
         )}
       </div>
 
-      {/* Modal Proses Persetujuan */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
@@ -232,7 +220,6 @@ export default function PersetujuanPage() {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
-            {/* Jika Setujui, tampilkan form untuk mengubah jumlah barang */}
             {actionType === "Approved" && selectedRequest && (
               <div className="bg-slate-50 p-4 rounded-md border space-y-3">
                 <Label className="text-sm font-semibold text-slate-700">Penyesuaian Jumlah Disetujui</Label>
@@ -248,7 +235,7 @@ export default function PersetujuanPage() {
                         type="number" 
                         className="w-20 text-center" 
                         min="0" 
-                        max={detail.Item.CurrentStock} // Maksimal tidak boleh melebihi stok
+                        max={detail.Item.CurrentStock}
                         value={approvedQuantities[detail.ID] || 0}
                         onChange={(e) => handleQuantityChange(detail.ID, parseInt(e.target.value) || 0)}
                       />
@@ -274,7 +261,7 @@ export default function PersetujuanPage() {
             <Button 
               className={actionType === "Approved" ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}
               onClick={submitProcess}
-              disabled={actionType === "Rejected" && comments.trim() === ""} // Wajib isi alasan jika ditolak
+              disabled={actionType === "Rejected" && comments.trim() === ""}
             >
               Konfirmasi {actionType === "Approved" ? "Persetujuan" : "Penolakan"}
             </Button>
