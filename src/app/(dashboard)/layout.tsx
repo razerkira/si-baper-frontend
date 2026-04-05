@@ -37,14 +37,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900">
       <aside className="w-64 bg-white border-r shadow-sm flex flex-col">
-        <div className="h-16 flex items-center justify-center border-b p-2">
+        {/* Tinggi kontainer diubah menjadi h-20 (80px) agar logo bisa lebih besar */}
+        <div className="h-20 flex items-center justify-center border-b p-4">
           <Link href="/">
             <Image 
-              src="/sibaper.webp" 
+              src="/si-baper.webp" 
               alt="Logo SI-BAPER" 
-              width={140} 
-              height={40} 
-              className="object-contain max-h-12 w-auto"
+              width={220}  /* Lebar diperbesar */
+              height={70}  /* Tinggi diperbesar */
+              className="object-contain w-auto h-full" /* max-h-12 dihapus agar bisa menyesuaikan h-full dari kontainer */
               priority
             />
           </Link>
@@ -70,7 +71,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b flex items-center justify-between px-8 shadow-sm shrink-0">
+        {/* Tinggi header utama disamakan dengan header sidebar yaitu h-20 agar sejajar */}
+        <header className="h-20 bg-white border-b flex items-center justify-between px-8 shadow-sm shrink-0">
           <h2 className="text-lg font-semibold text-slate-800">
             Inspektorat Jenderal Kementerian Hak Asasi Manusia Republik Indonesia
           </h2>
