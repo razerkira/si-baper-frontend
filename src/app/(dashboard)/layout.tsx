@@ -36,18 +36,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900">
-      <aside className="w-64 bg-white border-r shadow-sm flex flex-col">
-        {/* Padding diubah menjadi px-4 py-3 untuk memberi jarak atas/bawah yang aman */}
-        <div className="h-20 flex items-center justify-center border-b px-4 py-3">
-          {/* Tambahkan class h-full flex items-center pada Link */}
-          <Link href="/" className="h-full flex items-center justify-center">
+      <aside className="w-64 bg-white border-r shadow-sm flex flex-col shrink-0">
+        {/* Tinggi diubah menjadi h-28 (112px) agar area logo jauh lebih luas */}
+        <div className="h-28 flex items-center justify-center border-b p-4">
+          <Link href="/" className="flex items-center justify-center">
             <Image 
               src="/si-baper.webp" 
               alt="Logo SI-BAPER" 
               width={220}  
-              height={70}  
-              /* Gunakan max-h-full agar mematuhi padding kontainer */
-              className="object-contain w-auto max-h-full" 
+              height={75}  
+              /* Menggunakan h-auto dan max-h agar gambar mempertahankan proporsinya 
+                 dan tidak kolaps oleh flexbox */
+              className="w-auto h-auto max-h-[75px] object-contain" 
               priority
             />
           </Link>
@@ -73,8 +73,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Tinggi header utama disamakan dengan header sidebar yaitu h-20 agar sejajar */}
-        <header className="h-20 bg-white border-b flex items-center justify-between px-8 shadow-sm shrink-0">
+        {/* Tinggi header disamakan dengan sidebar yaitu h-28 agar selaras */}
+        <header className="h-28 bg-white border-b flex items-center justify-between px-8 shadow-sm shrink-0">
           <h2 className="text-lg font-semibold text-slate-800">
             Inspektorat Jenderal Kementerian Hak Asasi Manusia Republik Indonesia
           </h2>
