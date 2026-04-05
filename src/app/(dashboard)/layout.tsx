@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Package, FileText, ClipboardList, LayoutDashboard, LogOut, User as UserIcon, History, Users } from "lucide-react";
 import Cookies from "js-cookie";
@@ -31,14 +32,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Persetujuan", href: "/persetujuan", icon: ClipboardList },
     { name: "Laporan Mutasi", href: "/laporan", icon: History },
     { name: "Manajemen Pengguna", href: "/pengguna", icon: Users },
-    
   ];
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900">
       <aside className="w-64 bg-white border-r shadow-sm flex flex-col">
-        <div className="h-16 flex items-center justify-center border-b">
-          <h1 className="text-2xl font-bold text-blue-700 tracking-wider">SI-BAPER</h1>
+        <div className="h-16 flex items-center justify-center border-b p-2">
+          <Link href="/">
+            <Image 
+              src="/sibaper.webp" 
+              alt="Logo SI-BAPER" 
+              width={140} 
+              height={40} 
+              className="object-contain max-h-12 w-auto"
+              priority
+            />
+          </Link>
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
