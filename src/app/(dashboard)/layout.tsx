@@ -37,15 +37,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900">
       <aside className="w-64 bg-white border-r shadow-sm flex flex-col">
-        {/* Tinggi kontainer diubah menjadi h-20 (80px) agar logo bisa lebih besar */}
-        <div className="h-20 flex items-center justify-center border-b p-4">
-          <Link href="/">
+        {/* Padding diubah menjadi px-4 py-3 untuk memberi jarak atas/bawah yang aman */}
+        <div className="h-20 flex items-center justify-center border-b px-4 py-3">
+          {/* Tambahkan class h-full flex items-center pada Link */}
+          <Link href="/" className="h-full flex items-center justify-center">
             <Image 
               src="/si-baper.webp" 
               alt="Logo SI-BAPER" 
-              width={220}  /* Lebar diperbesar */
-              height={70}  /* Tinggi diperbesar */
-              className="object-contain w-auto h-full" /* max-h-12 dihapus agar bisa menyesuaikan h-full dari kontainer */
+              width={220}  
+              height={70}  
+              /* Gunakan max-h-full agar mematuhi padding kontainer */
+              className="object-contain w-auto max-h-full" 
               priority
             />
           </Link>
