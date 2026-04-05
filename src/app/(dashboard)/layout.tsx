@@ -41,7 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-28 flex items-center justify-center border-b p-4">
           <Link href="/" className="flex items-center justify-center">
             <Image 
-              src="/si-baper-upscale.webp" 
+              src="/logo-si-baper.webp" 
               alt="Logo SI-BAPER" 
               width={220}  
               height={75}  
