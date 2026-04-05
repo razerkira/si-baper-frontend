@@ -1,3 +1,4 @@
+// src/app/(dashboard)/permintaan/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -28,7 +29,8 @@ interface RequestHistory {
   RequestNumber: string;
   Status: string;
   Notes: string;
-  CreatedAt: string;
+  CreatedAt?: string;
+  created_at?: string; // Fallback jika backend merespons dengan snake_case
   RequestDetails: {
     Item: Item;
     QuantityRequested: number;
@@ -144,6 +146,21 @@ export default function PermintaanPage() {
     }
   };
 
+  // Fungsi pembantu untuk format tanggal secara aman
+  const formatSafeDate = (req: RequestHistory) => {
+    // Mengecek beberapa kemungkinan penamaan field dari backend
+    const dateValue = req.CreatedAt || req.created_at || (req as any).UpdatedAt || (req as any).updated_at;
+    
+    if (!dateValue) return "-";
+    
+    const dateObj = new Date(dateValue);
+    
+    // Mengecek apakah parsing tanggal valid atau menghasilkan Invalid Date (NaN)
+    if (isNaN(dateObj.getTime())) return "-";
+    
+    return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Halaman */}
@@ -181,7 +198,6 @@ export default function PermintaanPage() {
               <div className="flex items-end gap-3 p-4 bg-slate-50 rounded-lg border">
                 <div className="flex-1 space-y-2">
                   <Label>Pilih Barang</Label>
-                  {/* Kita gunakan tag <select> HTML standar agar lebih mudah */}
                   <select 
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     value={selectedItemId}
@@ -274,7 +290,8 @@ export default function PermintaanPage() {
                   <TableRow key={req.ID}>
                     <TableCell className="font-medium text-slate-700">{req.RequestNumber}</TableCell>
                     <TableCell className="text-slate-500">
-                      {new Date(req.CreatedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {/* Pemanggilan fungsi format aman yang baru ditambahkan */}
+                      {formatSafeDate(req)}
                     </TableCell>
                     <TableCell>
                       <ul className="list-disc list-inside text-sm">

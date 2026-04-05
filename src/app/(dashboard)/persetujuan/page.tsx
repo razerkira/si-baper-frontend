@@ -1,3 +1,4 @@
+// src/app/(dashboard)/persetujuan/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -30,7 +31,8 @@ interface PendingRequest {
   ID: number;
   RequestNumber: string;
   Notes: string;
-  CreatedAt: string;
+  CreatedAt?: string;
+  created_at?: string; // Fallback jika backend menggunakan snake_case
   User: {
     FullName: string;
     Department: string;
@@ -122,6 +124,21 @@ export default function PersetujuanPage() {
     }
   };
 
+  // Fungsi pembantu untuk format tanggal secara aman
+  const formatSafeDate = (req: PendingRequest) => {
+    const dateValue = req.CreatedAt || req.created_at || (req as any).UpdatedAt || (req as any).updated_at;
+    
+    if (!dateValue) return "-";
+    
+    const dateObj = new Date(dateValue);
+    
+    // Mengecek apakah parsing tanggal valid atau menghasilkan Invalid Date (NaN)
+    if (isNaN(dateObj.getTime())) return "-";
+    
+    // Menggunakan format yang sama dengan halaman permintaan agar seragam
+    return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -154,7 +171,8 @@ export default function PersetujuanPage() {
                     <TableCell>
                       <div className="font-medium text-slate-700">{req.RequestNumber}</div>
                       <div className="text-xs text-slate-500">
-                        {new Date(req.CreatedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                        {/* Menggunakan formatSafeDate alih-alih Date langsung */}
+                        {formatSafeDate(req)}
                       </div>
                     </TableCell>
                     <TableCell>
