@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Tinggi header disamakan dengan sidebar yaitu h-28 agar selaras */}
         <header className="h-28 bg-white border-b flex items-center justify-between px-8 shadow-sm shrink-0">
           <h2 className="text-lg font-semibold text-slate-800">
-            Inspektorat Jenderal Kementerian Hak Asasi Manusia Republik Indonesia
+            SI-BAPER Inspektorat Jenderal Kementerian Hak Asasi Manusia
           </h2>
 
           <DropdownMenu>
