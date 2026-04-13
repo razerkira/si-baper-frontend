@@ -88,9 +88,9 @@ export default function BerandaPage() {
           </div>
           <div className="flex-1 flex justify-center">
             <img 
-              src="/Si-baper homepage orang.png" 
-              alt="Illustration" 
-              className="w-full max-w-xl drop-shadow-2xl" 
+              src="/si-baper-homepage orang.png"
+              alt="Illustration"
+              className="w-full max-w-xl drop-shadow-2xl"
             />
           </div>
         </section>
