@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const navItems = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
+    { name: "Dashboard", href: "/dasbor", icon: LayoutDashboard },
     { name: "Katalog Barang", href: "/katalog", icon: Package },
     { name: "Permintaan", href: "/permintaan", icon: FileText },
     { name: "Pengajuan", href: "/pengajuan", icon: FileText },

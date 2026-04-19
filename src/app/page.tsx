@@ -1,3 +1,4 @@
+// src/app/page.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -156,9 +157,9 @@ export default function BerandaPage() {
         </div>
         
         {isLoggedIn ? (
-          <Link href="/">
+          <Link href="/dasbor">
             <button className="bg-blue-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-md">
-              Ke Dashboard
+              Ke Dasbor
             </button>
           </Link>
         ) : (
@@ -211,7 +212,7 @@ export default function BerandaPage() {
                     <tr>
                       <td colSpan={4} className="p-8 text-center text-gray-500">
                         <p className="mb-2">Riwayat permintaan disembunyikan untuk publik.</p>
-                        <Link href="/login"><span className="text-blue-600 font-bold hover:underline cursor-pointer">Log In ke Dashboard</span></Link> untuk melacak status barang Anda.
+                        <Link href="/login"><span className="text-blue-600 font-bold hover:underline cursor-pointer">Log In ke Dasbor</span></Link> untuk melacak status barang Anda.
                       </td>
                     </tr>
                   ) : reqHistory.length === 0 ? (
@@ -319,7 +320,7 @@ export default function BerandaPage() {
                     <tr>
                       <td colSpan={3} className="p-8 text-center text-gray-500">
                         <p className="mb-2">Riwayat pengajuan disembunyikan untuk publik.</p>
-                        <Link href="/login"><span className="text-blue-600 font-bold hover:underline cursor-pointer">Log In ke Dashboard</span></Link> untuk melacak status pengajuan Anda.
+                        <Link href="/login"><span className="text-blue-600 font-bold hover:underline cursor-pointer">Log In ke Dasbor</span></Link> untuk melacak status pengajuan Anda.
                       </td>
                     </tr>
                   ) : subHistory.length === 0 ? (

@@ -1,3 +1,4 @@
+// src/lib/api.ts
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -38,7 +39,8 @@ api.interceptors.response.use(
       Cookies.remove('token');
       Cookies.remove('user');
       
-      if (typeof window !== 'undefined') {
+      // PERBAIKAN: Hanya paksa redirect ke /login JIKA user TIDAK sedang berada di Beranda (/)
+      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
         window.location.href = '/login';
       }
     }

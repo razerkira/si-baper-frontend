@@ -1,3 +1,4 @@
+// src/app/(auth)/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -41,8 +42,8 @@ export default function LoginPage() {
       // Simpan data user (seperti nama, nip, role) sebagai string JSON
       Cookies.set("user", JSON.stringify(data), { expires: 1 });
 
-      // Arahkan pengguna ke halaman Dashboard utama
-      router.push("/");
+      // Arahkan pengguna ke halaman Dashboard yang baru
+      router.push("/dasbor");
     } catch (err: any) {
       // Tangkap pesan error dari backend jika email/password salah
       if (err.response && err.response.data && err.response.data.error) {
