@@ -37,6 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Katalog Barang", href: "/katalog", icon: Package },
     { name: "Permintaan", href: "/permintaan", icon: FileText },
+    { name: "Pengajuan", href: "/pengajuan", icon: FileText },
     { name: "Persetujuan", href: "/persetujuan", icon: ClipboardList },
     { name: "Laporan Mutasi", href: "/laporan", icon: History },
     { name: "Manajemen Pengguna", href: "/pengguna", icon: Users },
